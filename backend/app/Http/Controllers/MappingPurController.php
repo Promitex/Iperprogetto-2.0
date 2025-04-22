@@ -7,7 +7,7 @@ use App\Models\PurPiemonte;
 
 class MappingPurController extends Controller
 {
-    // Restituisce i valori unici della colonna col0
+    
     public function getCol0()
     {
         $col0Values = PurPiemonte::select('col0')

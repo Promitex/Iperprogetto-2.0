@@ -9,7 +9,7 @@ class PurPiemonteController extends Controller
 {
     public function index()
     {
-        $data = PurPiemonte::limit(10)->get();
+        $data = PurPiemonte::all();
         return response()->json($data);
     }
 }
