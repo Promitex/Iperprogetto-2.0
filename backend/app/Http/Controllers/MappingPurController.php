@@ -7,16 +7,12 @@ use App\Models\PurPiemonte;
 
 class MappingPurController extends Controller
 {
-    
     public function getCol0()
     {
-        $col0Values = PurPiemonte::select('col0')
-            ->distinct()
-            ->orderBy('col0')
-            ->pluck('col0');
-
-        return response()->json($col0Values);
+        $data = PurPiemonte::select('col0', 'col1', 'col2', 'col3', 'col4', 'col5')->get(); // aggiungi qui i campi che ti servono
+        return response()->json($data);
     }
+    
 
     // Restituisce i valori unici della colonna col1 filtrati per col0
     public function getCol1($col0)
