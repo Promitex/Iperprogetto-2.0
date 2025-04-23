@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import ToggleItem from './ToggleItem';
 import { Container, Typography, Skeleton, Box } from '@mui/material';
-
+import SelectRegioni from './SelectRegioni';
 export default function PrezziarioPiemonte() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [regioneSelezionata, setRegioneSelezionata] = useState('');
 
   useEffect(() => {
+    if (regioneSelezionata == 'Piemonte') {
+      
     fetch('http://127.0.0.1:8000/api/test/col0')
       .then(res => res.json())
       .then(json => {
@@ -17,14 +20,18 @@ export default function PrezziarioPiemonte() {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+    }else{
+      setLoading(true);
+    }
+  }, [regioneSelezionata]);
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Box sx={{ backgroundColor: '#9dbebc', color: '#fff', p: 2, borderRadius: 1, mb: 2 }}>
-        <Typography variant="h6">
+        {/* <Typography variant="h6">
           Prezzario Piemonte
-        </Typography>
+        </Typography> */}
+        <SelectRegioni onChange={setRegioneSelezionata} />
       </Box>
 
       {loading ? (
