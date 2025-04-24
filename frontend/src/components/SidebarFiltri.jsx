@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { use } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { useAppState } from './AppStateProvider';
-
+import { useEffect } from 'react';
 export default function SidebarFiltri({ categorie, tipo,data = [] }) {
     const {
         categoria, setCategoria,
@@ -9,7 +9,9 @@ export default function SidebarFiltri({ categorie, tipo,data = [] }) {
         sottoTipologia, setSottoTipologia,
         setVoceSelezionata
     } = useAppState();
-
+useEffect(() => {
+    setCategoria("01")
+},[])
     const selected = tipo === 'categoria' ? categoria
         : tipo === 'tipologia' ? tipologia
             : tipo === 'sottoTipologia' ? sottoTipologia
