@@ -12,15 +12,18 @@ import {
   Button,
   Typography
 } from '@mui/material';
+import { useAppState } from './AppStateProvider';
 
 export default function PrezziarioPiemonte() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [categoria, setCategoria] = useState(null);        // A00
-  const [tipologia, setTipologia] = useState(null);        // A00.010
-  const [sottoTipologia, setSottoTipologia] = useState(null); // A00.010.001
-  const [voceSelezionata, setVoceSelezionata] = useState(null); // array di voci finali
+  const {
+    categoria, setCategoria,
+    tipologia, setTipologia,
+    sottoTipologia, setSottoTipologia,
+    voceSelezionata, setVoceSelezionata
+  } = useAppState();
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/api/test/col0')
@@ -79,48 +82,11 @@ export default function PrezziarioPiemonte() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Box sx={{ display: 'flex' }}>
-        {/* Sidebar categorie */}
-        <SidebarFiltri
-          categorie={categorie}
-          selected={categoria}
-          onSelect={(cat) => {
-            setCategoria(cat);
-            setTipologia(null);
-            setSottoTipologia(null);
-            setVoceSelezionata(null);
-          }}
-        />
+        <SidebarFiltri tipo="categoria" categorie={categorie} />
+        {categoria && <SidebarFiltri tipo="tipologia" categorie={tipologie} />}
+        {/* {tipologia && <SidebarFiltri tipo="sottoTipologia" categorie={sottoTipologie} />} */}
+        {tipologia && <SidebarFiltri tipo="sottoTipologia" categorie={sottoTipologie} data={data} />}
 
-        {/* Sidebar tipologie */}
-        {categoria && (
-          <SidebarFiltri
-            categorie={tipologie}
-            selected={tipologia}
-            onSelect={(tip) => {
-              setTipologia(tip);
-              setSottoTipologia(null);
-              setVoceSelezionata(null);
-            }}
-          />
-        )}
-
-        {/* Sidebar sotto-tipologie */}
-        {tipologia && (
-          <SidebarFiltri
-            categorie={sottoTipologie}
-            selected={sottoTipologia}
-            onSelect={(sub) => {
-              setSottoTipologia(sub);
-              const foglie = data.filter(item =>
-                item.col1?.startsWith(`${categoria}.${tipologia}.${sub}.`) &&
-                item.col1.split('.').length === 4
-              );
-              setVoceSelezionata(foglie.length > 0 ? foglie : null);
-            }}
-          />
-        )}
-
-        {/* Lista principale */}
         <Box sx={{ flexGrow: 1, pl: 4 }}>
           {loading ? (
             [...Array(5)].map((_, i) => (
@@ -138,14 +104,13 @@ export default function PrezziarioPiemonte() {
                 current={item.col1}
                 label={item.col2}
                 data={data}
-                onApriVoci={(voci) => setVoceSelezionata(voci)}
               />
             ))
           )}
         </Box>
       </Box>
 
-      {/* Dialog per mostrare le voci foglia */}
+      {/* Popup con voce selezionata */}
       <Dialog
         open={Boolean(voceSelezionata)}
         onClose={() => setVoceSelezionata(null)}
@@ -157,7 +122,7 @@ export default function PrezziarioPiemonte() {
         </DialogTitle>
 
         <DialogContent dividers sx={{ backgroundColor: '#f9f9f9' }}>
-          {Array.isArray(voceSelezionata) ? (
+          {Array.isArray(voceSelezionata) && voceSelezionata.length > 0 ? (
             voceSelezionata.map((voce, idx) => (
               <Box key={idx} sx={{ mb: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
