@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PurPiemonte extends Model
+class PurCampania extends Model
 {
-    protected $table = 'hfu_mapping_pur_piemonte';
+    protected $table = 'hfu_mapping_pur';
     public $timestamps = false; 
 }
-

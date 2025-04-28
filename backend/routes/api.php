@@ -14,3 +14,4 @@ use App\Http\Controllers\MappingPurController;
 Route::get('/piemonte/col0', [MappingPurController::class, 'getCol0']);
 Route::get('/piemonte/col1/{col0}', [MappingPurController::class, 'getCol1']);
 Route::get('/piemonte/col2/{col0}/{col1}', [MappingPurController::class, 'getCol2']);
+Route::get('/test/getcampania', [MappingPurController::class, 'getcampania']);

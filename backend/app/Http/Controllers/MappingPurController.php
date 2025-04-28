@@ -4,15 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PurPiemonte;
+use App\Models\PurCampania; // <- corretto!
 
 class MappingPurController extends Controller
 {
-    public function getCol0()
+    public function getcampania()
     {
-        $data = PurPiemonte::select('col0', 'col1', 'col2', 'col3', 'col4', 'col5')->get(); // aggiungi qui i campi che ti servono
+        $data = PurCampania::select('regione','col0', 'col1', 'col2', 'col3', 'col4', 'col5')
+            ->where('regione', 'campania')
+            ->get();
+
         return response()->json($data);
     }
-    
+
+    public function getCol0()
+    {
+        $data = PurPiemonte::select('col0', 'col1', 'col2', 'col3', 'col4', 'col5')
+            ->get();
+        return response()->json($data);
+    }
+
 
     // Restituisce i valori unici della colonna col1 filtrati per col0
     public function getCol1($col0)
