@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import SidebarFiltri from './SidebarFiltri';
 import ToggleItem from './ToggleItem';
 import {
@@ -12,17 +12,18 @@ import {
   Button,
   Typography
 } from '@mui/material';
-import { useAppState } from './AppStateProvider';
+import { useAppState } from '../features/appState/useAppState'; // percorso corretto!
+import SearchBar from './SearchBar';
 
 export default function PrezziarioPiemonte() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const {
     categoria, setCategoria,
     tipologia, setTipologia,
     sottoTipologia, setSottoTipologia,
-    voceSelezionata, setVoceSelezionata
+    voceSelezionata, setVoceSelezionata,
+    data, setData,
+    loading, setLoading,
+    searchQuery, setSearchQuery
   } = useAppState();
 
   useEffect(() => {
@@ -80,11 +81,11 @@ export default function PrezziarioPiemonte() {
   });
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
+    <Container maxWidth="xl" sx={{ mt: 4 }}>
+      <SearchBar data={data} />
       <Box sx={{ display: 'flex' }}>
         <SidebarFiltri tipo="categoria" categorie={categorie} />
         {categoria && <SidebarFiltri tipo="tipologia" categorie={tipologie} />}
-        {/* {tipologia && <SidebarFiltri tipo="sottoTipologia" categorie={sottoTipologie} />} */}
         {tipologia && <SidebarFiltri tipo="sottoTipologia" categorie={sottoTipologie} data={data} />}
 
         <Box sx={{ flexGrow: 1, pl: 4 }}>

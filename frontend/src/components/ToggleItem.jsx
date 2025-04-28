@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, IconButton, Grid } from '@mui/material';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import { useAppState } from './AppStateProvider';
+import { useAppState } from '../features/appState/useAppState'; // path corretto
 import VoceBox from './VoceBox';
+
 export default function ToggleItem({ current, label, data = [], livello = 0 }) {
   const [visible, setVisible] = useState(false);
   const {
@@ -14,26 +15,18 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
 
   const currentParts = current.split('.');
 
-  // Figli diretti
   const children = data.filter(item => {
     const parts = item.col1?.split('.') || [];
-    return (
-      parts.length === currentParts.length + 1 &&
-      parts.slice(0, currentParts.length).join('.') === current
-    );
+    return parts.length === currentParts.length + 1 && parts.slice(0, currentParts.length).join('.') === current;
   });
 
-  // Voci finali (foglie)
   const foglie = data.filter(item => {
     const parts = item.col1?.split('.') || [];
-    return (
-      parts.length === 4 &&
-      parts.slice(0, 3).join('.') === current
-    );
+    return parts.length === 4 && parts.slice(0, 3).join('.') === current;
   });
 
-  // Espansione automatica se corrisponde alla sottoTipologia attiva
   const targetCodice = [categoria, tipologia, sottoTipologia].filter(Boolean).join('.');
+
   useEffect(() => {
     if (current === targetCodice) {
       setVisible(true);
@@ -42,7 +35,7 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
 
   const handleToggle = () => {
     if (foglie.length > 0 && children.length === 0) {
-      setVoceSelezionata(foglie); // 🔥 Apri popup con le voci finali
+      setVoceSelezionata(foglie);
     } else {
       setVisible(prev => !prev);
     }
@@ -50,7 +43,6 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
 
   return (
     <Box sx={{ ml: livello === 0 ? 0 : 2, mb: 1 }}>
-      {/* Nodo cliccabile */}
       <Box
         onClick={handleToggle}
         sx={{
@@ -81,25 +73,22 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
         </Grid>
       </Box>
 
-      {/* Figli annidati */}
       {visible && children.length > 0 && (
         <Box sx={{ pl: 2, backgroundColor: '#f9f9f9' }}>
           {children.map((child, idx) => (
-  <React.Fragment key={`${child.col1}-${idx}`}>
-   {child.col4 == '' &&
-   
-      <ToggleItem
-        current={child.col1}
-        label={child.col2}
-        data={data}
-        livello={livello + 1}
-      />
-   }
-    
-    {child.col4 !== '' && <VoceBox voce={child} />}
-  </React.Fragment>
-))}
-
+            <React.Fragment key={`${child.col1}-${idx}`}>
+              {child.col4 === '' ? (
+                <ToggleItem
+                  current={child.col1}
+                  label={child.col2}
+                  data={data}
+                  livello={livello + 1}
+                />
+              ) : (
+                <VoceBox voce={child} />
+              )}
+            </React.Fragment>
+          ))}
         </Box>
       )}
     </Box>
