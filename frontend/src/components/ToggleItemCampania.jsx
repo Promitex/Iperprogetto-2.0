@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { Box, Typography, IconButton, Grid } from '@mui/material';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import { useAppState } from '../features/appState/useAppState'; // <-- aggiorna import!
+import { useAppState } from '../features/appState/useAppState';
 import VoceBox from './VoceBox';
 
-export default function ToggleItem({ current, label, data = [], livello = 0 }) {
-  const [visible, setVisible] = useState(false);
+export default function ToggleItemCampania({ current, currentItem, data = [], livello = 0 }) {
 
+  const [visible, setVisible] = useState(false);
   const {
     categoria,
     tipologia,
@@ -16,16 +16,42 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
 
   const currentParts = current.split('.');
 
-  const children = data.filter(item => {
-    const parts = item.col1?.split('.') || [];
-    return (
-      parts.length === currentParts.length + 1 &&
-      parts.slice(0, currentParts.length).join('.') === current
-    );
+  const label = 'ciao'
+  const parsed = data
+  .map(item => item?.col0?.replace(/^CAM25_/, ''))
+  .filter(Boolean)
+  .map(codice => {
+    const [categoria, tipologia, sottoTipologia] = codice.split('.');
+    return { categoria, tipologia, sottoTipologia };
   });
+  
+  console.log(currentItem.col0, 'data')
 
+
+
+
+  // Estrai figli raggruppati per valore univoco
+  const children = Array.from(
+    new Map(
+      data
+        .filter(item => {
+          const parts = item.col0?.replace(/^CAM25_/, '').split('.') || [];
+          return (
+            parts.length > livello &&
+            parts.slice(0, currentParts.length).join('.') === current
+          );
+        })
+        .map(item => {
+          const parts = item.col0?.replace(/^CAM25_/, '').split('.') || [];
+          const nextCode = parts.slice(0, currentParts.length + 1).join('.');
+          return [nextCode, item]; // Map usa il codice come chiave
+        })
+    ).values()
+  );
+
+  // Foglie (dettagli)
   const foglie = data.filter(item => {
-    const parts = item.col1?.split('.') || [];
+    const parts = item.col0?.replace(/^CAM25_/, '').split('.') || [];
     return (
       parts.length === 4 &&
       parts.slice(0, 3).join('.') === current
@@ -42,7 +68,12 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
 
   const handleToggle = () => {
     if (foglie.length > 0 && children.length === 0) {
-      setVoceSelezionata(foglie); // 🔥 Apri popup con le voci finali
+      setVoceSelezionata(foglie.map(f => ({
+        codice: f.col0,
+        descrizione: f.col5,
+        prezzoSenzaSG: f.col7,
+        prezzoConSG: f.col8
+      })));
     } else {
       setVisible(prev => !prev);
     }
@@ -50,7 +81,6 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
 
   return (
     <Box sx={{ ml: livello === 0 ? 0 : 2, mb: 1 }}>
-      {/* Nodo cliccabile */}
       <Box
         onClick={handleToggle}
         sx={{
@@ -81,23 +111,21 @@ export default function ToggleItem({ current, label, data = [], livello = 0 }) {
         </Grid>
       </Box>
 
-      {/* Figli annidati */}
+      {/* Figli */}
       {visible && children.length > 0 && (
         <Box sx={{ pl: 2, backgroundColor: '#f9f9f9' }}>
-          {children.map((child, idx) => (
-            <React.Fragment key={`${child.col1}-${idx}`}>
-              {child.col4 === '' ? (
-                <ToggleItem
-                  current={child.col1}
-                  label={child.col2}
-                  data={data}
-                  livello={livello + 1}
-                />
-              ) : (
-                <VoceBox voce={child} />
-              )}
-            </React.Fragment>
-          ))}
+          {children.map((child, idx) => {
+            const parts = child.col0?.replace(/^CAM25_/, '').split('.') || [];
+            const nextCode = parts.slice(0, livello + 1).join('.');
+            return (
+              <ToggleItemCampania
+                key={nextCode}
+                current={nextCode}
+                data={data}
+                livello={livello + 1}
+              />
+            );
+          })}
         </Box>
       )}
     </Box>
